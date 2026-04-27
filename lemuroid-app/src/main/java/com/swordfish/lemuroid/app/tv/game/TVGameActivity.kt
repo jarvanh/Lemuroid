@@ -32,11 +32,29 @@ class TVGameActivity : BaseGameActivity() {
     }
 
     private suspend fun initializeShortcutToastFlow() {
-        inputDeviceManager
-            .getEnabledInputsObservable()
-            .filter { it.isEmpty() }
-            .safeCollect {
+        kotlinx.coroutines.flow.combine(
+            inputDeviceManager.getDistinctGamePadsObservable(),
+            inputDeviceManager.getEnabledInputsObservable(),
+            inputDeviceManager.getInputBindingsObservable()
+        ) { allPads, enabledPads, bindingsLookup ->
+            Triple(allPads, enabledPads, bindingsLookup)
+        }.safeCollect { (allPads, enabledPads, bindingsLookup) ->
+            if (allPads.isNotEmpty() && enabledPads.isEmpty()) {
+                displayToast(R.string.tv_game_message_gamepad_disabled)
+            } else if (allPads.isEmpty()) {
                 displayToast(R.string.tv_game_message_missing_gamepad)
+            } else {
+                val hasBrokenBindings = enabledPads.any { pad ->
+                    val bindings = bindingsLookup(pad)
+                    val mappedRetroKeys = bindings.values.map { it.keyCode }
+                    val hasA = mappedRetroKeys.contains(android.view.KeyEvent.KEYCODE_BUTTON_A)
+                    val hasB = mappedRetroKeys.contains(android.view.KeyEvent.KEYCODE_BUTTON_B)
+                    !hasA || !hasB
+                }
+                if (hasBrokenBindings) {
+                    displayToast(R.string.tv_game_message_unmapped_gamepad)
+                }
             }
+        }
     }
 }

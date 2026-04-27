@@ -46,7 +46,7 @@ class LemuroidInputDeviceGamePad(private val device: InputDevice) : LemuroidInpu
     }
 
     override fun isEnabledByDefault(appContext: Context): Boolean {
-        return device.supportsAllKeys(MINIMAL_KEYS_DEFAULT_ENABLED)
+        return true
     }
 
     override fun getSupportedShortcuts(): List<GameShortcutType> = GameShortcutType.values().toList()
@@ -54,7 +54,6 @@ class LemuroidInputDeviceGamePad(private val device: InputDevice) : LemuroidInpu
     override fun isSupported(): Boolean {
         return sequenceOf(
             device.sources and InputDevice.SOURCE_GAMEPAD == InputDevice.SOURCE_GAMEPAD,
-            device.supportsAllKeys(MINIMAL_SUPPORTED_KEYS),
             device.isVirtual.not(),
             device.controllerNumber > 0,
         ).all { it }

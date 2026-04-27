@@ -25,7 +25,6 @@ class LemuroidApplication : DaggerApplication(), HasWorkerInjector, ImageLoaderF
     @SuppressLint("CheckResult")
     override fun onCreate() {
         super.onCreate()
-        com.swordfish.lemuroid.app.utils.RemoteLogger.start()
 
         val initializeComponent =
             if (isMainProcess()) {
