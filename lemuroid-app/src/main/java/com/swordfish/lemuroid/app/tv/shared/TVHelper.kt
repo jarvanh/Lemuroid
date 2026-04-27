@@ -6,6 +6,7 @@ import android.os.Environment
 
 object TVHelper {
     fun isSAFSupported(context: Context): Boolean {
+        if (isTV(context)) return false
         val packageManager = context.packageManager
 
         val isStandardHardware =

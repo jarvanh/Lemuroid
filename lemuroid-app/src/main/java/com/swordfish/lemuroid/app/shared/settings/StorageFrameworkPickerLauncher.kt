@@ -31,7 +31,8 @@ class StorageFrameworkPickerLauncher : RetrogradeActivity() {
             try {
                 startActivityForResult(intent, REQUEST_CODE_PICK_FOLDER)
             } catch (e: Exception) {
-                showStorageAccessFrameworkNotSupportedDialog()
+                com.swordfish.lemuroid.app.tv.folderpicker.TVFolderPickerLauncher.pickFolder(this)
+                finish()
             }
         }
     }

@@ -14,8 +14,25 @@ class TVFolderPickerLauncher : ImmersiveActivity() {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            startActivityForResult(Intent(this, TVFolderPickerActivity::class.java), REQUEST_CODE_PICK_FOLDER)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M &&
+                (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != android.content.pm.PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != android.content.pm.PackageManager.PERMISSION_GRANTED)) {
+                requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CODE_PERMISSION)
+            } else {
+                startFolderPicker()
+            }
         }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_PERMISSION) {
+            startFolderPicker()
+        }
+    }
+
+    private fun startFolderPicker() {
+        startActivityForResult(Intent(this, TVFolderPickerActivity::class.java), REQUEST_CODE_PICK_FOLDER)
     }
 
     override fun onActivityResult(
@@ -50,6 +67,7 @@ class TVFolderPickerLauncher : ImmersiveActivity() {
 
     companion object {
         private const val REQUEST_CODE_PICK_FOLDER = 1
+        private const val REQUEST_CODE_PERMISSION = 2
 
         fun pickFolder(context: Context) {
             context.startActivity(Intent(context, TVFolderPickerLauncher::class.java))

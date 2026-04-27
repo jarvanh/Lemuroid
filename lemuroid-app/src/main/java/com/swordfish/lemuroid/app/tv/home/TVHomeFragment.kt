@@ -233,11 +233,7 @@ class TVHomeFragment : BrowseSupportFragment() {
     }
 
     private fun launchFolderPicker() {
-        if (TVHelper.isSAFSupported(requireContext())) {
-            StorageFrameworkPickerLauncher.pickFolder(requireContext())
-        } else {
-            TVFolderPickerLauncher.pickFolder(requireContext())
-        }
+        TVFolderPickerLauncher.pickFolder(requireContext())
     }
 
     private fun launchTVSettings() {
