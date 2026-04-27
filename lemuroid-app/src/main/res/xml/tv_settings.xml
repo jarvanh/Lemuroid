@@ -4,6 +4,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
+        android:title="@string/roms"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="pref_key_tv_rom_directory"
+            android:title="@string/directory"
+            android:summary="@string/none"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/settings_category_general"
         app:iconSpaceReserved="false">
 

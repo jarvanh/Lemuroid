@@ -196,9 +196,23 @@ private fun RomsSettings(
 
     val currentDirectoryName =
         remember(state.currentDirectory) {
-            runCatching {
-                DocumentFile.fromTreeUri(context, Uri.parse(currentDirectory))?.name
-            }.getOrNull() ?: emptyDirectory
+            if (currentDirectory.isEmpty()) {
+                emptyDirectory
+            } else {
+                runCatching {
+                    // Try SAF URI first (content:// scheme)
+                    DocumentFile.fromTreeUri(context, Uri.parse(currentDirectory))?.name
+                }.getOrNull()
+                    ?: runCatching {
+                        // Fallback for legacy file paths
+                        java.io.File(currentDirectory).name.takeIf { it.isNotEmpty() }
+                    }.getOrNull()
+                    ?: runCatching {
+                        // Fallback for URI last path segment
+                        Uri.parse(currentDirectory).lastPathSegment
+                    }.getOrNull()
+                    ?: emptyDirectory
+            }
         }
 
     LemuroidCardSettingsGroup(title = { Text(text = stringResource(id = R.string.roms)) }) {

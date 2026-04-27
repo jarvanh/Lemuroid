@@ -99,6 +99,8 @@ class TVSettingsFragment : LeanbackPreferenceFragmentCompat() {
             SharedPreferencesHelper.getSharedPreferencesDataStore(requireContext())
         setPreferencesFromResource(R.xml.tv_settings, rootKey)
 
+        updateRomDirectoryPreference()
+
         getCoresSelectionScreen()?.let {
             coresSelectionPreferences.addCoresSelectionPreferences(it)
         }
@@ -122,6 +124,7 @@ class TVSettingsFragment : LeanbackPreferenceFragmentCompat() {
     override fun onResume() {
         super.onResume()
         refreshSaveSyncScreen()
+        updateRomDirectoryPreference()
     }
 
     private fun getGamePadPreferenceScreen(): PreferenceScreen? {
@@ -138,6 +141,37 @@ class TVSettingsFragment : LeanbackPreferenceFragmentCompat() {
 
     private fun getBiosInfoPreferenceScreen(): PreferenceScreen? {
         return findPreference(resources.getString(R.string.pref_key_display_bios_info))
+    }
+
+    private fun updateRomDirectoryPreference() {
+        val romDirPref = findPreference<Preference>("pref_key_tv_rom_directory")
+        romDirPref?.let { pref ->
+            val sharedPrefs = SharedPreferencesHelper.getLegacySharedPreferences(requireContext())
+            val legacyFolder = sharedPrefs.getString(
+                getString(com.swordfish.lemuroid.lib.R.string.pref_key_legacy_external_folder), null
+            )
+            val safFolder = sharedPrefs.getString(
+                getString(com.swordfish.lemuroid.lib.R.string.pref_key_extenral_folder), null
+            )
+            val folderPath = safFolder?.takeIf { it.isNotEmpty() } ?: legacyFolder
+            if (!folderPath.isNullOrEmpty()) {
+                // Try to extract a human-readable name from the path
+                val displayName = try {
+                    java.io.File(folderPath).name.takeIf { it.isNotEmpty() }
+                        ?: android.net.Uri.parse(folderPath).lastPathSegment
+                        ?: folderPath
+                } catch (e: Exception) {
+                    folderPath
+                }
+                pref.summary = displayName
+            } else {
+                pref.summary = getString(R.string.none)
+            }
+            pref.setOnPreferenceClickListener {
+                settingsInteractor.changeLocalStorageFolder()
+                true
+            }
+        }
     }
 
     private fun getAdvancedSettingsPreferenceScreen(): PreferenceScreen? {
