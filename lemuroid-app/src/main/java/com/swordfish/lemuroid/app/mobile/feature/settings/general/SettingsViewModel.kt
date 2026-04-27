@@ -47,8 +47,12 @@ class SettingsViewModel(
     val directoryScanInProgress = PendingOperationsMonitor(context).isDirectoryScanInProgress()
 
     val uiState =
-        sharedPreferences.getString(context.getString(com.swordfish.lemuroid.lib.R.string.pref_key_extenral_folder))
-            .asFlow()
+        kotlinx.coroutines.flow.combine(
+            sharedPreferences.getString(context.getString(com.swordfish.lemuroid.lib.R.string.pref_key_extenral_folder)).asFlow(),
+            sharedPreferences.getString(context.getString(com.swordfish.lemuroid.lib.R.string.pref_key_legacy_external_folder)).asFlow()
+        ) { safFolder, legacyFolder ->
+            if (safFolder.isNotEmpty()) safFolder else legacyFolder
+        }
             .flowOn(Dispatchers.IO)
             .stateIn(viewModelScope, SharingStarted.Lazily, "")
             .map { State(it, saveSyncManager.isSupported()) }

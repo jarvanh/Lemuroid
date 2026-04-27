@@ -27,7 +27,7 @@ class PendingOperationsMonitor(private val appContext: Context) {
     }
 
     fun anyLibraryOperationInProgress(): Flow<Boolean> {
-        return operationsInProgress(Operation.LIBRARY_INDEX, Operation.CORE_UPDATE)
+        return operationsInProgress(Operation.LIBRARY_INDEX)
     }
 
     fun isDirectoryScanInProgress(): Flow<Boolean> {
